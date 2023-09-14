@@ -6,30 +6,32 @@
     <title>Test Site</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
+
+    <header>
+        <p class="title"> Test Site </p>
+        <p> *Random gradient I generated at a website </p>
+    </header>
+
     <main>
-
-        <header>
-            <p class="title"> Test Site </p>
-            <p> *Random gradient I generated at a website </p>
-        </header>
-
         <div class="information"> </div>
 
-        <div class="images-test">
-            
-        </div>
+        <div class="images-test"></div>
 
-        <button title="Redirects to the reservation page"> Reserve! </button>
-
+        <button title="Redirects to the reservation page" onclick="document.location='#'"> Reserve! </button>
     </main>
 
-    <script type="module" src="loader.js"></script>
-
+    <!-- MIGHT NOT BE REQUIRED -->
+        <footer>  
+            <p> Made by the <strong>Ressu-Coding-Club</strong> </p>
+            <p> Date of creation: <strong> 11-09-2023 </strong></p>
+        </footer>
+    
     <!-- DONT INCLUDE THIS SCRIPT IN THE FINAL RELEASE -->
         <script type="module" src="random_img_gen.js"></script>
-
-    <script type="module" src="formatter.js"></script>
+        
+    <script type="module" src="loader.js"></script>
 </body>
 </html>
