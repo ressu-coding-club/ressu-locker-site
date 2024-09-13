@@ -1,0 +1,19 @@
+function doPost(e) {
+  try {
+    // Parse the incoming JSON data
+    var data = JSON.parse(e.postData.contents);
+
+    // Open the Google Sheet and append the data
+    var sheet = SpreadsheetApp.openById('1exnQoSxlGyMNUQnYIqoKVeuhlxnmXQJ6O26uVQwwO04').getSheetByName('Sheet1');
+    sheet.appendRow([data.name, data.email]);
+
+    // Send a simple success message
+    return ContentService.createTextOutput(JSON.stringify({ 'status': 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    // Handle error and return an error response
+    return ContentService.createTextOutput(JSON.stringify({ 'status': 'error', 'message': error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
