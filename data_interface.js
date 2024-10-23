@@ -4,12 +4,12 @@ const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4
 const client_id = "298203617666-1q011fl95e6u5rufsaek1voga7j6m2cp.apps.googleusercontent.com";
 const range = "raw_data!A2:B101";
 const scope = "https://www.googleapis.com/auth/spreadsheets";
-const script_url = "https://script.google.com/macros/s/AKfycbz_4Go6KCzvnn_U0c7sT5qF72PcsITP1gr0lVZEMVTg2bSQQS_yvDtq35UQGNXrXMVN/exec";
+const script_url = 'https://script.google.com/macros/s/AKfycbx4406Pugk2ic3NikxWkNVRJsJi3bkYWWb36yJ7RPYSHnDb0RWBTYXfm6aqwePj9RsLjg/exec';
 const locker_col = 0, username_col = 1;
 const min_locker_num = 1, max_locker_num = 100;
 
 var raw_data = [[]]; // 2d array, subarrays in format [locker_number, username] as strings
-var data = {} // dictionary mapping locker number (int) to username if available, else null
+var data = {} // dictionary mapping locker number (int) to username (str) if available, else null
 
 // Initializing GAPI Client
 function init_gapi_client() {
@@ -21,12 +21,6 @@ function init_gapi_client() {
     }).catch((error) => {
         console.error("Error during GAPI client initialization:", error);
     })
-}
-
-// Load GAPI Client library and initialize it
-function load_gapi_client() {
-    /**Initializes GAPI client, then calls `read_sheet` to extract data, which in turn calls `build_data` */
-    gapi.load('client', init_gapi_client);
 }
 
 // Read data from sheet
@@ -43,6 +37,7 @@ function read_sheet() {
     })
 }
 
+// Convert raw data into map structure
 function build_data() {
     /**Uses `raw_data` to build the dictionary `data`
      * in key-value format `locker_number : username`
@@ -60,33 +55,45 @@ function build_data() {
     // console.log(data);
 }
 
+// Load GAPI Client library, initialize client, build data map
+function initialize() {
+    /**Initializes GAPI client, then calls `read_sheet` to extract data, which in turn calls `build_data` */
+    gapi.load('client', init_gapi_client);
+}
+
 function is_locker_booked(locker_num) {
     /**Checks in `data` if `locker_num` is booked
      * Return true if booked and false otherwise
-     * WILL NOT WORK IF `build_data` HAS NOT BEEN RUN
+     * WILL NOT WORK IF `initialize` or `build_data` HAS NOT BEEN RUN
      */
     return (data[locker_num] != null);
 }
 
 // THIS FUNCTION STILL HAS ERRORS
-/* function save_locker_as_booked(locker_num, username) {
-    let post_data = {locker_num: locker_num, username: username};
+function save_locker_as_booked(locker_num, username) {
+    const post_data = {locker_num: locker_num, username: username};
     fetch(script_url, {
+        mode: 'no-cors',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(post_data)
     })
-    .then(() => console.log('Request sent successfully'))
+    .then(() => {
+        console.log('Request sent successfully');
+        data[locker_num] = username;
+    })
     .catch(err => console.error('Request failed', err));
-}*/
+}
 
-/* function test() {
-    load_gapi_client();
+/*
+function test() {
+    initialize();
     console.log(is_locker_booked(2));
-    // save_locker_as_booked(2, "def.pqr@org.com");
+    save_locker_as_booked(1004, "def.pqr@org.com");
     console.log(is_locker_booked(2));
-}*/ 
+}
+*/
 
-window.onload = load_gapi_client;
+window.onload = initialize;
