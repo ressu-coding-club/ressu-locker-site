@@ -1,0 +1,24 @@
+div#grid_container {
+    --rows-count: repeat(1, 1fr); --column-count: repeat(1, 1fr);
+    --grid-container-width: 400px;
+    --grid-container-height: 400px;
+
+    padding-right: 10px;
+
+    position: absolute;
+
+    left: calc(50vw - (var(--grid-container-width)/2));
+    top: calc(50vh - (var(--grid-container-height)/2));
+
+    width: var(--grid-container-width);
+    height: var(--grid-container-height);
+
+    grid-template-columns: var(--columns-count);
+    grid-template-rows: var(--rows-count);
+
+    display: grid;
+    overflow: hidden;
+    overflow-y: auto;
+
+    border: 1px solid black;
+}

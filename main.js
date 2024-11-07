@@ -1,39 +1,24 @@
-let grid_container = document.getElementById("grid_container")
+import * as Sections from "./section-data.js"
 
-let locker_map = [
-    [],
-    [],
-    [],
-    [],
-    [
-        { size: 50, start: 500 },
-        { size: 50, start: 550 },
-        { size: 50, start: 600 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-        { size: 50, start: 500 },
-    ],
-    []
-];
+const grid_container = document.getElementById("grid_container")
 
-function create_grid_container(floor_index, section_index) {
+function create_grid_container(section) {
     while (grid_container.hasChildNodes()) {
         grid_container.removeChild(grid_container.firstChild)
     }
 
-    for (let i = 0; i < locker_map[floor_index][section_index].size; i++) {
-        console.log("test")
-        let locker_button = document.createElement("button")
-        let locker_number = locker_map[floor_index][section_index].start + i + 1;
-        locker_button.innerHTML = locker_number
-        locker_button.onclick = () => { console.log(`You reserved locker number ${locker_map[floor_index][section_index].start + i + 1}`) }
+    for (let i = section.start; i <= section.end; i++) {
+        let locker_button = document.createElement("button");
+        locker_button.innerHTML = `${i}`;
+        locker_button.onclick = () => { console.log(`Reserved locker number ${i}`) }
         grid_container.appendChild(locker_button)
     }
+
+    grid_container.style.setProperty('--columns-count', `repeat(${section.width}, 1fr)`)
+    grid_container.style.setProperty('--rows-count', `repeat(${section.height}, 1fr)`)
 }
 
-create_grid_container(4, 1)
+
+
+// test
+create_grid_container(Sections.getSectionViaIndex(4))
