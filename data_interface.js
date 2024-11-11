@@ -2,7 +2,7 @@ const sheet_id = "1GjgwX92w88Y92F4F7-u7jZzSbu2-XVf0GUNu7zWXkCU";
 const api_key = "AIzaSyB5RlCToszC9vbp3iP6mQjTPn7YnreeduU";
 const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const client_id = "298203617666-1q011fl95e6u5rufsaek1voga7j6m2cp.apps.googleusercontent.com";
-const range = "raw_data!A2:B101";
+const range = "raw_data!A2:B501";
 const scope = "https://www.googleapis.com/auth/spreadsheets";
 const script_url = 'https://script.google.com/macros/s/AKfycbx4406Pugk2ic3NikxWkNVRJsJi3bkYWWb36yJ7RPYSHnDb0RWBTYXfm6aqwePj9RsLjg/exec';
 const locker_col = 0, username_col = 1;
@@ -57,8 +57,14 @@ function build_data() {
 
 // Load GAPI Client library, initialize client, build data map
 function initialize() {
-    /**Initializes GAPI client, then calls `read_sheet` to extract data, which in turn calls `build_data` */
-    gapi.load('client', init_gapi_client);
+    return new Promise((resolve) => {
+        /**Initializes GAPI client 
+         * which calls `read_sheet` to extract data then
+         * which calls `build_data` 
+         * Returns a `promise` */
+        gapi.load('client', init_gapi_client)
+        resolve("");
+    });
 }
 
 function is_locker_booked(locker_num) {
@@ -69,8 +75,13 @@ function is_locker_booked(locker_num) {
     return (data[locker_num] != null);
 }
 
-// THIS FUNCTION STILL HAS ERRORS
+// Updates data and saves a locker (if free) as booked in the database
 function save_locker_as_booked(locker_num, username) {
+    read_sheet();
+
+    if (is_locker_booked(locker_num))
+        return false;
+
     const post_data = {locker_num: locker_num, username: username};
     fetch(script_url, {
         mode: 'no-cors',
@@ -81,19 +92,19 @@ function save_locker_as_booked(locker_num, username) {
         body: JSON.stringify(post_data)
     })
     .then(() => {
-        console.log('Request sent successfully');
         data[locker_num] = username;
+        return true;  
     })
     .catch(err => console.error('Request failed', err));
 }
 
-/*
 function test() {
-    initialize();
+    initialize()
+    .then (() => {
     console.log(is_locker_booked(2));
-    save_locker_as_booked(1004, "def.pqr@org.com");
+    save_locker_as_booked(631, "def.pqr@org.com");
     console.log(is_locker_booked(2));
+    })
 }
-*/
 
 window.onload = initialize;
