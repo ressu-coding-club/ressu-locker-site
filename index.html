@@ -6,11 +6,27 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
+        <header> 
+            <h1>Ressu Locker Site</h1>
+        </header>
+
         <div id="grid_container"></div>
+
+        <footer>
+            <nav>
+                <button id="section-left" aria-disabled="true"><</button>
+                <div id="between">
+                    <p id="section-info-text">Floor:4, Range:</p>
+                </div>
+                <button id="section-right" aria-disabled="false">></button>
+            </nav>
+        </footer>
 
         <script type="module" src="https://apis.google.com/js/api.js"></script>
         <script type="module" src="data_interface.js"></script>
         <script type="module" src="section-data.js"></script>
+        <script type="module" src="section-navigation.js"></script>
+        <script type="module" src="locker-modal.js"></script>
 
         <script type="module" src="main.js"></script>
     </body>

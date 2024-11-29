@@ -1,4 +1,5 @@
 import * as Sections from "./section-data.js"
+import * as Navigation from "./section-navigation.js"
 
 const grid_container = document.getElementById("grid_container")
 
@@ -10,6 +11,7 @@ function create_grid_container(section) {
     for (let i = section.start; i <= section.end; i++) {
         let locker_button = document.createElement("button");
         locker_button.innerHTML = `${i}`;
+        locker_button.className = `locker-button`;
         locker_button.onclick = () => { console.log(`Reserved locker number ${i}`) }
         grid_container.appendChild(locker_button)
     }
@@ -18,7 +20,4 @@ function create_grid_container(section) {
     grid_container.style.setProperty('--rows-count', `repeat(${section.height}, 1fr)`)
 }
 
-
-
-// test
-create_grid_container(Sections.getSectionViaIndex(4))
+Navigation.NavigationObserver(function(sId){create_grid_container(Sections.getSectionViaIndex(sId))})
