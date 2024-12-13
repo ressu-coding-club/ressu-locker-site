@@ -69,14 +69,14 @@ export function getSectionViaIndex(index) {
 */
 export const section_data =
 [
-    createSection(401,430,4,5,6),
-    createSection(431,485,4,5,11),
+    createSection(401,430,4,6,5),
+    createSection(431,485,4,11,5),
 
-    createSection(501,515,5,5,3),
-    createSection(516,579,5,4,16),
-    createSection(580,603,5,4,6),
-    createSection(604,653,5,5,10),
+    createSection(501,515,5,3,5),
+    createSection(516,579,5,16,4),
+    createSection(580,603,5,6,4),
+    createSection(604,653,5,10,5),
     createSection(654,673,5,5,4),
-    createSection(674,703,5,5,6),
-    createSection(704,733,5,5,6)
+    createSection(674,703,5,6,5),
+    createSection(704,733,5,6,5)
 ]
