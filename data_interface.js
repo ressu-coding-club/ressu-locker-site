@@ -2,14 +2,20 @@ const sheet_id = "1GjgwX92w88Y92F4F7-u7jZzSbu2-XVf0GUNu7zWXkCU";
 const api_key = "AIzaSyB5RlCToszC9vbp3iP6mQjTPn7YnreeduU";
 const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const client_id = "298203617666-1q011fl95e6u5rufsaek1voga7j6m2cp.apps.googleusercontent.com";
-const range = "raw_data!A2:D501";
+const range1 = "4th Floor!A2:D86";
+const range2 = "5th Floor!A2:D205";
 const scope = "https://www.googleapis.com/auth/spreadsheets";
-const script_url = 'https://script.google.com/macros/s/AKfycbx4406Pugk2ic3NikxWkNVRJsJi3bkYWWb36yJ7RPYSHnDb0RWBTYXfm6aqwePj9RsLjg/exec';
+const write_script_url = 'https://script.google.com/macros/s/AKfycbztIJH-GHg5GoknHR2VN51ROZqH9V1J0GxZ8x1AO7yKu4zUdZtGr7LnOJq3K69VNUiL9A/exec';
+const mail_script_url = 'https://script.google.com/macros/s/AKfycbydynGu3lT8WXgN9jOXLlzGA-jf2vmlYN_zkHq0rkKLwFsXjxVldDUCmlSSpKbHiGJq-g/exec';
 const min_locker_num = 1, max_locker_num = 100;
 
 /** A 2D array, subarrays in format [locker_number, username] as strings */
 var raw_data = [[]];
 
+/**
+ * Initializes the GAPI Client library, that will be used to read sheets
+ * @returns {null}
+*/
 async function init() {
     const load = new Promise( function(resolve, reject) {
         gapi.load('client', resolve);
@@ -22,14 +28,21 @@ async function init() {
     })
 }
 
+/**
+ * Reads the Sheets database (both 4th and 5th Floor) and stores raw data 
+ * (in JSON format) to `raw_data` array
+ */
 async function read_raw_sheet() {
     try {
-        gapi.client.sheets.spreadsheets.values.get({
+        gapi.client.sheets.spreadsheets.values.batchGet({
             spreadsheetId: sheet_id,
-            range: range
-        }).then((response) => {
-            raw_data = response.result.values;
+            ranges: [range1, range2]
         })
+        .then((response) => {
+            raw_data = response.result.valueRanges[0].values;
+            raw_data = raw_data.concat(response.result.valueRanges[1].values);
+        })
+        .catch(err => {console.log(err)})
     }
     catch {
         await init();
@@ -56,7 +69,6 @@ export class locker_data {
 }
 
 export class DataInterface {
-    
     /** A dictionary(map) locker number (int) to corresponding `locker_data` object */
     data = {};
 
@@ -64,15 +76,10 @@ export class DataInterface {
         this.update_data();
     }
 
-    get raw_data() {
-        return raw_data;
-    }
-
     /**Read raw data from sheet and update the `raw_data` array */
     async update_data() {
         await read_raw_sheet();
         this._build_data();
-        console.log(this.data);
     }
 
     /**Converts `raw_data` into `locker_data` objects stored in `data` array */
@@ -80,32 +87,42 @@ export class DataInterface {
         const locker_col = 0, username_col = 1, code_col = 2, confirm_col = 3;
 
         var n = raw_data.length;
-        for (let i = min_locker_num; i <= max_locker_num; ++i) {
-            this.data[i] = null;
-        }
-    
         for (let i = 0; i < n; ++i) {
             let locker_number = parseInt(raw_data[i][locker_col]);
             let username = raw_data[i][username_col];
             let code = raw_data[i][code_col];
             let is_confirmed = raw_data[i][confirm_col];
             this.data[locker_number] = new locker_data(locker_number, username, code, is_confirmed);
-        }   
+        }
     }
 
-    /** Checks in `data` if `locker_num` is booked 
+    /** Checks in `data` if booking of `locker_num` is confirmed
+     * @param {number} locker_num
+     * @returns {boolean} Whether the locker booking is confirmed
+    */
+    is_locker_confirmed(locker_num) {
+        if (this.data[locker_num])
+            return this.data[locker_num].booking_confirmed == "TRUE"
+        else
+            return false
+    }
+
+    /** Checks in `data` if `locker_num` is booked (i.e. has an associated username)
      * @param {number} locker_num
      * @returns {boolean} Whether the locker is booked (unconfirmed is also true)
     */
     is_locker_booked(locker_num) {
-        return (this.data[locker_num] != null)
+        if (this.data[locker_num])
+            return this.data[locker_num].username != 'FREE'
+        else
+            return false
     }
 
-    /** Returns `hex` color as string of locker 
+    /** Returns `hex` color of locker as a string
      * Free = green;
      * Booked but not confirmed = Yellow;
      * Booked and confirmed = Red
-     * @param {number} locker_num
+     * @param {number} locker number
      * @returns {str} color of locker in hex format
     */
     get_locker_color(locker_num) {
@@ -113,7 +130,7 @@ export class DataInterface {
         if (!this.is_locker_booked(locker_num))
             return green;
         else {
-            if (this.data[locker_num].booking_confirmed == "TRUE")
+            if (this.is_locker_confirmed(locker_num))
                 return red;
             else
                 return yellow;
@@ -127,7 +144,14 @@ export class DataInterface {
         return Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
     }
 
-    attempt_booking(locker_num, username) {
+    /**
+     * Updates all data, checks if locker is booked,
+     * then generates random code, updates `this.data` and writes it to the database
+     * @param {number} locker_num locker number
+     * @param {string} username email ID of user
+     * @returns {null}
+     */
+    make_booking(locker_num, username) {
         this.update_data();
     
         if (this.is_locker_booked(locker_num))
@@ -140,8 +164,9 @@ export class DataInterface {
             code: code, 
             booking_confirmed: false
         };
-
-        fetch(script_url, {
+        
+        this.data[locker_num] = new locker_data(locker_num, username, code, false);
+        fetch(write_script_url, {
             mode: 'no-cors',
             method: 'POST',
             headers: {
@@ -149,23 +174,70 @@ export class DataInterface {
             },
             body: JSON.stringify(post_data)
         })
-        .then(() => {
-            this.data[locker_num] = locker_data(locker_num, username, code, false);
-            return true;  
+    }
+
+    /**
+     * Checks if the confirmation code given by user matches with the one in the
+     * database
+     * @param {number} locker_num locker number
+     * @param {number} code confirmation that has been entered by user
+     * @returns {boolean}
+     */
+    is_code_correct(locker_num, code) {
+         return this.data[locker_num].confirmation_code == code;
+    }
+
+    /**
+     * Marks a locker booking as confirmed in `this.data`, and then update
+     * Sheets database accordingly
+     * @param {number} locker_num locker number
+     */
+    set_locker_as_confirmed(locker_num) {
+        this.data[locker_num].booking_confirmed = true;
+
+        const post_data = {
+            locker_num: locker_num, 
+            username: this.data[locker_num].username, 
+            code: this.data[locker_num].confirmation_code, 
+            booking_confirmed: true
+        };
+
+        fetch(write_script_url, {
+            mode: 'no-cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(post_data)
         })
-        .catch(err => console.error('Request failed', err));
+    }
+
+    /**
+     * Send a mail to the provided user email ID, which contains the confirmation 
+     * code. **Text of mail needs to be updated on Google Apps Script, in Ressu 
+     * Coding Club's gmail account**
+     * @param {number} locker_num locker number
+     */
+    send_confirmation_mail(locker_num) {
+        const post_data = {
+            recipient: this.data[locker_num].username,
+            locker_num: locker_num,
+            confirmation_code: this.data[locker_num].confirmation_code
+        }
+        fetch(mail_script_url, {
+            mode: 'no-cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(post_data)
+        })
     }
 }
 
 function test() {
-    read_raw_sheet()
-    .then(() => {
-        if (raw_data.length > 1)
-            console.log(raw_data);
-        else {
-            read_raw_sheet().then(console.log(raw_data));
-        }
-    });
+    var di = new DataInterface();
+    console.log(di.data);
 }
 
 // window.onload = test;
