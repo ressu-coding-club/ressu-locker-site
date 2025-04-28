@@ -30,10 +30,8 @@ async function create_grid_container(section) {
  * @param {number} locker_num 
  */
 function locker_onclick(locker_num) {
-    if (data_interface.is_locker_confirmed(locker_num))
+    if (data_interface.is_locker_booked(locker_num))
         alert(`Locker ${locker_num} is already reserved!`);
-    else if (data_interface.is_locker_booked(locker_num)) 
-        check_confirmation(locker_num);
     else
         book_locker(locker_num);
 }
@@ -44,27 +42,28 @@ function locker_onclick(locker_num) {
  * @returns {null}
  */
 function book_locker(locker_num) {
-    // **ASK ABOUT PRIVACY RIGHTS IN PROMPT**
-    var email_id = prompt("Please type in your email ID. A confirmation code will be mailed to this ID.");
-    if (email_id == null)
+    var prompt_text = `You are booking locker number ${locker_num}. Please type in your full name. `;
+    prompt_text += "This will be stored in our database to associate your locker number with you.";
+    var name = prompt(prompt_text);
+    if (name == null) {
+        alert("We didn't catch that. Please try again!");
         return;
-    data_interface.make_booking(locker_num, email_id);
-    data_interface.send_confirmation_mail(locker_num);
-    alert(`Locker ${locker_num} has been reserved by ${email_id}! Click on the locker again to enter confirmation code and confirm booking.`);
-}
-
-/**
- * Asks user for confirmation code and if it is correct then confirms booking and updates database
- * @param {number} locker_num locker number
- */
-function check_confirmation(locker_num) {
-    var code = parseInt(prompt("Please type in the confirmation code mailed to the registered email ID:"));
-    if (data_interface.is_code_correct(locker_num, code)) {
-        data_interface.set_locker_as_confirmed(locker_num);
-        alert("Code is correct. Locker booking is confirmed!");
     }
-    else
-        alert("Incorrect code! Locker booking remains unconfirmed.");
+
+    var group = prompt("Please enter your group. For example, 23DPA");
+    if (group == null) {
+        alert("We didn't catch that. Please try again!");
+        return;
+    }
+
+    data_interface.make_booking(locker_num, name, group);
+
+    prompt_text = `Congratulations! You have booked locker ${locker_num}. `;
+    prompt_text += "If you wish to receive a confirmation email with your booking details, please enter your email ID below. This will only be used to send you a confirmation mail.";
+    var email_id = prompt(prompt_text);
+
+    data_interface.send_confirmation_mail(locker_num, email_id, name, group);
+    alert(`Email has been sent to ${email_id}.`);
 }
 
 Navigation.NavigationObserver(function(sId){create_grid_container(Sections.getSectionViaIndex(sId))})
