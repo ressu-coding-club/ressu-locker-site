@@ -2,8 +2,8 @@ const sheet_id = "131TxjV7aCP97IbQNBEMJJzb-X6CXoGj1hrN0_yAPiRc";
 const api_key = "AIzaSyB5RlCToszC9vbp3iP6mQjTPn7YnreeduU";
 const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const range1 = "4th Floor!A2:B86";
-const range2 = "5th Floor!A2:B205";
-const write_script_url = 'https://script.google.com/macros/s/AKfycbwFdldiQJKSISvITusPnOR3_gNFvstuF9rhd3OHh3BJfKGdNx5XkX7HwIbxaskjY3hq/exec';
+const range2 = "5th Floor!A2:B234";
+const write_script_url = 'https://script.google.com/macros/s/AKfycbxAmEgFqN0HHzCRxqQObPMzVXJNCaO23DO8pGTIhUbgj9I3-bO2BHYr3dqXE57P2EzC/exec';
 const mail_script_url = 'https://script.google.com/macros/s/AKfycbwO9IYuvfbQNv-88dn2awwGFtsSivZNcJp-GadcwZdX6Y24NavYR1GiBawG2PtnIqqI/exec';
 
 /** A 2D array, subarrays in format [locker_number, name] as strings */
@@ -110,7 +110,7 @@ export class DataInterface {
      * @param {string} name email ID of user
      * @returns {null}
      */
-    make_booking(locker_num, name, group) {
+    make_booking(locker_num, name, group, date) {
         this.update_data();
     
         if (this.is_locker_booked(locker_num))
@@ -120,9 +120,11 @@ export class DataInterface {
             locker_num: locker_num, 
             name: name, 
             group: group, 
+            date: date
         };
         
         this.data[locker_num] = new locker_data(locker_num, true);
+        
         fetch(write_script_url, {
             mode: 'no-cors',
             method: 'POST',

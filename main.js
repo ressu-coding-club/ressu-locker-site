@@ -42,7 +42,7 @@ function locker_onclick(locker_num) {
  * @returns {null}
  */
 function book_locker(locker_num) {
-    var prompt_text = `You are booking locker number ${locker_num}. Please type in your full name. `;
+    var prompt_text = `You are booking locker number ${locker_num}. Please type in your full name. \n`;
     prompt_text += "This will be stored in our database to associate your locker number with you.";
     var name = prompt(prompt_text);
     if (name == null) {
@@ -56,14 +56,17 @@ function book_locker(locker_num) {
         return;
     }
 
-    data_interface.make_booking(locker_num, name, group);
+    var date = new Date();
+    data_interface.make_booking(locker_num, name, group, date);
 
-    prompt_text = `Congratulations! You have booked locker ${locker_num}. `;
-    prompt_text += "If you wish to receive a confirmation email with your booking details, please enter your email ID below. This will only be used to send you a confirmation mail.";
+    prompt_text = `Congratulations! You have reserved locker ${locker_num}. \n`;
+    prompt_text += "This will be finalized only after you pay X€ to the Student Council. \n";
+    prompt_text += "If you wish to receive an email with your booking details, please enter your email ID below. This will only be used to send you a confirmation mail, else click OK";
     var email_id = prompt(prompt_text);
 
-    data_interface.send_confirmation_mail(locker_num, email_id, name, group);
-    alert(`Email has been sent to ${email_id}.`);
+    if (email_id != null)
+        data_interface.send_confirmation_mail(locker_num, email_id, name, group);
+        alert(`Email has been sent to ${email_id}.`);
 }
 
 Navigation.NavigationObserver(function(sId){create_grid_container(Sections.getSectionViaIndex(sId))})
