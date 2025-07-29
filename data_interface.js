@@ -3,8 +3,8 @@ const api_key = "AIzaSyB5RlCToszC9vbp3iP6mQjTPn7YnreeduU";
 const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const range1 = "4th Floor!A2:B86";
 const range2 = "5th Floor!A2:B234";
-const write_script_url = 'https://script.google.com/macros/s/AKfycbxAmEgFqN0HHzCRxqQObPMzVXJNCaO23DO8pGTIhUbgj9I3-bO2BHYr3dqXE57P2EzC/exec';
-const mail_script_url = 'https://script.google.com/macros/s/AKfycbwO9IYuvfbQNv-88dn2awwGFtsSivZNcJp-GadcwZdX6Y24NavYR1GiBawG2PtnIqqI/exec';
+const write_script_url = 'https://script.google.com/macros/s/AKfycbwattTZaKvWXn-VcqZIk7oabYTJ21G5O-5DkHIMXwDNi2QcJIXrauOmbMuz8JDpYaAK/exec';
+const mail_script_url = 'https://script.google.com/macros/s/AKfycbyVx_IJYEtS-55B2OK_eSxC8gvnlyv2_-eqg6CxgzZzX-69MWVSx5q9X-1wRWBHfUNe/exec';
 
 /** A 2D array, subarrays in format [locker_number, name] as strings */
 var raw_data = [[]];
@@ -14,15 +14,14 @@ var raw_data = [[]];
  * @returns {null}
 */
 async function init() {
-    const load = new Promise( function(resolve, reject) {
-        gapi.load('client', resolve);
-    })
-    return load.then(async () => {
-        return await gapi.client.init({
-            discoveryDocs: [discovery_docs],
-            apiKey: api_key
-        })
-    })
+    return new Promise((resolve, reject) => {
+        gapi.load('client', () => {
+            gapi.client.init({
+                discoveryDocs: [discovery_docs],
+                apiKey: api_key
+            }).then(resolve).catch(reject);
+        });
+    });
 }
 
 /**
@@ -39,9 +38,8 @@ async function read_raw_sheet() {
             raw_data = response.result.valueRanges[0].values;
             raw_data = raw_data.concat(response.result.valueRanges[1].values);
         })
-        .catch(err => {console.log(err)})
-    }
-    catch {
+    } catch (err) {
+        console.log(err);
         await init();
         await read_raw_sheet();
     }
@@ -70,11 +68,11 @@ export class DataInterface {
     /**Read raw data from sheet and update the `raw_data` array */
     async update_data() {
         await read_raw_sheet();
-        this._build_data();
+        await this._build_data();
     }
 
     /**Converts `raw_data` into `locker_data` objects stored in `data` array */
-    _build_data() {
+    async _build_data() {
         const locker_col = 0, name_col = 1;
 
         var n = raw_data.length;
@@ -110,29 +108,37 @@ export class DataInterface {
      * @param {string} name email ID of user
      * @returns {null}
      */
-    make_booking(locker_num, name, group, date) {
-        this.update_data();
-    
-        if (this.is_locker_booked(locker_num))
-            return false;
+    async make_booking(locker_num, name, group, email, duration, payment_method, date) {
+        
+        await this.update_data();
+        if (this.is_locker_booked(locker_num)) {
+            alert(`Locker ${locker_num} can't be booked since it is already reserved!`);
+            return;
+        }
+        else {
+            const post_data = {
+                locker_num: locker_num, 
+                name: name, 
+                group: group, 
+                email: email,
+                date: date,
+                duration: duration,
+                payment_method: payment_method
+            };
+            
+            this.data[locker_num] = new locker_data(locker_num, true);
+            
+            console.log(JSON.stringify(post_data));
 
-        const post_data = {
-            locker_num: locker_num, 
-            name: name, 
-            group: group, 
-            date: date
-        };
-        
-        this.data[locker_num] = new locker_data(locker_num, true);
-        
-        fetch(write_script_url, {
-            mode: 'no-cors',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(post_data)
-        })
+            fetch(write_script_url, {
+                mode: 'no-cors',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post_data)
+            })
+        }
     }
 
     /**
@@ -141,12 +147,14 @@ export class DataInterface {
      * Coding Club's gmail account**
      * @param {number} locker_num locker number
      */
-    send_confirmation_mail(locker_num, email_id, name, group) {
+    send_confirmation_mail(locker_num, email_id, name, group, duration, payment_method) {
         const post_data = {
             recipient: email_id,
             name: name,
             group: group,
-            locker_num: locker_num
+            locker_num: locker_num,
+            duration: duration,
+            payment_method: payment_method
         }
         fetch(mail_script_url, {
             mode: 'no-cors',
@@ -158,10 +166,3 @@ export class DataInterface {
         })
     }
 }
-
-function test() {
-    var di = new DataInterface();
-    console.log(di.data);
-}
-
-// window.onload = test;

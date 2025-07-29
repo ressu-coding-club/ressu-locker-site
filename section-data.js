@@ -69,6 +69,8 @@ export function getSectionViaIndex(index) {
 */
 export const section_data =
 [
+    createSection(0, 0, 0, 1, 1), // dummy
+
     createSection(401,430,4,6,5),
     createSection(431,485,4,11,5),
 

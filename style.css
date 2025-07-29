@@ -49,9 +49,10 @@ header > h2 {
     font-size: 30px;
 }
 
-div#legend {
-    padding: 2vw;
-    width: 10vw;
+div#loading_box {
+    padding: 2vw;   
+    font-size: 5vh;
+    text-align: center;
 }
 
 div#grid_container {
@@ -61,8 +62,8 @@ div#grid_container {
 
     position: absolute;
 
-    left: calc(50vw - (var(--grid-container-width)/2));
-    top: calc(50vh - (var(--grid-container-height)/2));
+    left: 3vw; /*calc(50vw - (var(--grid-container-width)/2));*/
+    top: 16vh; /*calc(50vh - (var(--grid-container-height)/2));*/
 
     width: var(--grid-container-width);
     height: var(--grid-container-height);
@@ -88,6 +89,25 @@ div#grid_container > .locker-button:hover {
     filter: brightness(0.9);
 }
 
+h3 {
+    font-size: 18;
+    line-height: 0;
+}
+
+div#formbox {
+    position: absolute;
+    left: 76vw;
+    top: 20vh;
+
+    width: 21vw;
+    height: 65vh;
+
+    border: 2px solid black;
+    padding: 1vh;
+
+    font-size: 14px;
+    line-height: 20px;
+}
 
 footer {
     --footer-height: 60px;

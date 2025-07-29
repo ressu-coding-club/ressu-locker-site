@@ -6,6 +6,12 @@ const grid_container = document.getElementById("grid_container")
 const data_interface = new DataInterface();
 
 async function create_grid_container(section) {
+    if (section.start == 0 && section.end == 0) {
+        let loading_text = "Green lockers are available to book, while red ones are blocked! Once you select a suitable locker, use the form on the right to make a booking. Click on the right arrow below to start browsing..."
+        grid_container.innerHTML = `<div id="loading_box">${loading_text}</div>`;
+        return;
+    }
+
     await data_interface.update_data();
     while (grid_container.hasChildNodes()) {
         grid_container.removeChild(grid_container.firstChild)
@@ -25,15 +31,42 @@ async function create_grid_container(section) {
     grid_container.style.setProperty('--rows-count', `repeat(${section.height}, 1fr)`)
 }
 
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    var name = formData.get("name");
+    var group = formData.get("group");
+    var email = formData.get("email");
+    var locker_num = parseInt(formData.get("locker_num"));
+    var duration = formData.get("duration");
+    var payment_mode = formData.get("payment");
+    var consent = formData.get("consent");
+
+    if (!consent)
+        alert("Please check the consent box to complete your booking!");
+    else if (locker_num<401 || (locker_num>485 && locker_num<501) || locker_num>733)
+        alert("Locker number is invalid. Please choose a green locker from the grid.");
+    else if (data_interface.is_locker_booked(locker_num))
+        alert(`Locker ${locker_num} is can't be booked since it is already reserved!`);
+    else
+        book_locker(locker_num, name, group, email, duration, payment_mode);
+
+    console.log(name, group, email, duration, locker_num);
+});
+
+// function handle_form_data(locker_num, )
+
 /**
  * If-else chain on what should be done on locker button click
  * @param {number} locker_num 
  */
 function locker_onclick(locker_num) {
     if (data_interface.is_locker_booked(locker_num))
-        alert(`Locker ${locker_num} is already reserved!`);
+        alert(`Locker ${locker_num} is can't be booked since it is already reserved!`);
     else
-        book_locker(locker_num);
+        document.getElementById("locker_num").value = locker_num;
+        // book_locker(locker_num);
 }
 
 /**
@@ -41,32 +74,20 @@ function locker_onclick(locker_num) {
  * @param {number} locker_num locker number
  * @returns {null}
  */
-function book_locker(locker_num) {
-    var prompt_text = `You are booking locker number ${locker_num}. Please type in your full name. \n`;
-    prompt_text += "This will be stored in our database to associate your locker number with you.";
-    var name = prompt(prompt_text);
-    if (name == null) {
-        alert("We didn't catch that. Please try again!");
-        return;
+async function book_locker(locker_num, name, group, email, duration, payment_method) {
+    if (data_interface.is_locker_booked(locker_num)) {
+        alert(`Locker ${locker_num} can't be booked since it is already reserved!`);
     }
+    else {
+        var date = new Date();
+        await data_interface.make_booking(locker_num, name, group, email, duration, payment_method, date);
 
-    var group = prompt("Please enter your group. For example, 23DPA");
-    if (group == null) {
-        alert("We didn't catch that. Please try again!");
-        return;
+        await data_interface.send_confirmation_mail(locker_num, email, name, group, duration, payment_method);
+        alert(`Congrulations! You have booked locker number ${locker_num}. An email with payment details has been sent to ${email}.`);
     }
-
-    var date = new Date();
-    data_interface.make_booking(locker_num, name, group, date);
-
-    prompt_text = `Congratulations! You have reserved locker ${locker_num}. \n`;
-    prompt_text += "This will be finalized only after you pay X€ to the Student Council. \n";
-    prompt_text += "If you wish to receive an email with your booking details, please enter your email ID below. This will only be used to send you a confirmation mail, else click OK";
-    var email_id = prompt(prompt_text);
-
-    if (email_id != null)
-        data_interface.send_confirmation_mail(locker_num, email_id, name, group);
-        alert(`Email has been sent to ${email_id}.`);
 }
 
-Navigation.NavigationObserver(function(sId){create_grid_container(Sections.getSectionViaIndex(sId))})
+Navigation.NavigationObserver(async function(sId){
+    await data_interface.update_data();
+    await create_grid_container(Sections.getSectionViaIndex(sId));
+});

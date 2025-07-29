@@ -13,11 +13,60 @@
             <div id="club_logo_text">Ressu Coding Club</div>
         </header>
         
-        <div id="legend">
-                Click on green locker squares to book them! Red lockers have already been booked.
-        </div>
-        
         <div id="grid_container"></div>
+
+        <div id="formbox">
+            <form id="form">
+            
+            <h3>Book a Locker</h3>
+            <br>
+
+            <label for="name">Your Name: </label> 
+            <br>
+            <input type="text" id="name" name="name">
+            <br>
+
+            <label for="group">Your Group (for e.g.23DPA):</label>
+            <input type="text" id="group" name="group">
+            <br>
+
+            <label for="email">Your Email ID:</label>
+            <input type="email" id="email" name="email">
+            <br>
+        
+            <label for="locker_num">Locker number to book:</label>
+            <input type="number" id="locker_num" name="locker_num">
+            <br>
+
+            <label for="duration">Book locker for </label>
+            <select id="duration" name="duration">
+                <option value="1">1 year</option>
+                <option value="2">2 years</option>
+                <option value="3">3 years</option>
+            </select>
+            <br>
+
+            <label for="payment">Your mode of payment:</label>
+            <br>
+            <input type="radio" id="cash" name="payment" value="cash">
+            <label for="payment"><font size="2px">Cash</font></label>
+            <input type="radio" id="mobilepay" name="payment" value="mobilepay">
+            <label for="payment"><font size="2px">MobilePay</font></label>
+            <br><br>
+
+            <input type="radio" id="consent" name="consent">
+            <label for="consent"><font size="2px">I consent to the Ressu IB Student Council, and Ressu Coding Club, storing and handling the above data.</font></label>
+
+            <br>
+
+            <button type="submit">Submit</button>
+
+            </form>
+        </div>
+
+        <script>
+            
+        </script>
 
         <footer>
             <nav>
