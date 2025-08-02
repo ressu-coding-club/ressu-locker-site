@@ -45,7 +45,13 @@ form.addEventListener("submit", function(e) {
 
     if (!consent)
         alert("Please check the consent box to complete your booking!");
-    else if (locker_num<401 || (locker_num>485 && locker_num<501) || locker_num>733)
+    else if (locker_num<401)
+        alert("Locker number is invalid. Please choose a green locker from the grid.");
+    else if (locker_num>485 && locker_num<501)
+        alert("Locker number is invalid. Please choose a green locker from the grid.");
+    else if (locker_num>733 && locker_num<800)
+        alert("Locker number is invalid. Please choose a green locker from the grid.");
+    else if (locker_num>871)
         alert("Locker number is invalid. Please choose a green locker from the grid.");
     else if (data_interface.is_locker_booked(locker_num))
         alert(`Locker ${locker_num} is can't be booked since it is already reserved!`);

@@ -3,7 +3,8 @@ const api_key = "AIzaSyB5RlCToszC9vbp3iP6mQjTPn7YnreeduU";
 const discovery_docs = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const range1 = "4th Floor!A2:B86";
 const range2 = "5th Floor!A2:B234";
-const write_script_url = 'https://script.google.com/macros/s/AKfycbwattTZaKvWXn-VcqZIk7oabYTJ21G5O-5DkHIMXwDNi2QcJIXrauOmbMuz8JDpYaAK/exec';
+const range3 = "6th Floor!A2:B73";
+const write_script_url = 'https://script.google.com/macros/s/AKfycbzqFsVWTx0x2DNfuq5l8jzZ-QzS0G7NNDnsL868uUgiO2nKyYaAOQVHAyZP4kXFCDbp/exec';
 const mail_script_url = 'https://script.google.com/macros/s/AKfycbyVx_IJYEtS-55B2OK_eSxC8gvnlyv2_-eqg6CxgzZzX-69MWVSx5q9X-1wRWBHfUNe/exec';
 
 /** A 2D array, subarrays in format [locker_number, name] as strings */
@@ -32,11 +33,12 @@ async function read_raw_sheet() {
     try {
         gapi.client.sheets.spreadsheets.values.batchGet({
             spreadsheetId: sheet_id,
-            ranges: [range1, range2]
+            ranges: [range1, range2, range3]
         })
         .then((response) => {
             raw_data = response.result.valueRanges[0].values;
             raw_data = raw_data.concat(response.result.valueRanges[1].values);
+            raw_data = raw_data.concat(response.result.valueRanges[2].values)
         })
     } catch (err) {
         console.log(err);

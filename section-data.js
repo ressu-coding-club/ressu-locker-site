@@ -80,5 +80,8 @@ export const section_data =
     createSection(604,653,5,10,5),
     createSection(654,673,5,5,4),
     createSection(674,703,5,6,5),
-    createSection(704,733,5,6,5)
+    createSection(704,733,5,6,5),
+
+    createSection(800, 835, 6, 6, 6),
+    createSection(836, 871, 6, 6, 6)
 ]
