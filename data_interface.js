@@ -5,7 +5,7 @@ const range1 = "4th Floor!A2:B86";
 const range2 = "5th Floor!A2:B234";
 const range3 = "6th Floor!A2:B73";
 const write_script_url = 'https://script.google.com/macros/s/AKfycbzqFsVWTx0x2DNfuq5l8jzZ-QzS0G7NNDnsL868uUgiO2nKyYaAOQVHAyZP4kXFCDbp/exec';
-const mail_script_url = 'https://script.google.com/macros/s/AKfycbyVx_IJYEtS-55B2OK_eSxC8gvnlyv2_-eqg6CxgzZzX-69MWVSx5q9X-1wRWBHfUNe/exec';
+const mail_script_url = 'https://script.google.com/macros/s/AKfycbyDTUpWiHXwRa3kpUySpj8XmD11TmQxoAcddtUWkV-QTM4fAfRHPS2o_mhMYxi2aDw5/exec';
 
 /** A 2D array, subarrays in format [locker_number, name] as strings */
 var raw_data = [[]];
