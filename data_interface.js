@@ -149,22 +149,29 @@ export class DataInterface {
      * Coding Club's gmail account**
      * @param {number} locker_num locker number
      */
-    send_confirmation_mail(locker_num, email_id, name, group, duration, payment_method) {
-        const post_data = {
-            recipient: email_id,
-            name: name,
-            group: group,
-            locker_num: locker_num,
-            duration: duration,
-            payment_method: payment_method
+    async send_confirmation_mail(locker_num, email_id, name, group, duration, payment_method) {
+        await this.update_data();
+        if (this.is_locker_booked(locker_num)) {
+            alert(`Locker ${locker_num} can't be booked since it is already reserved!`);
+            return;
         }
-        fetch(mail_script_url, {
-            mode: 'no-cors',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(post_data)
-        })
+        else {
+            const post_data = {
+                recipient: email_id,
+                name: name,
+                group: group,
+                locker_num: locker_num,
+                duration: duration,
+                payment_method: payment_method
+            }
+            fetch(mail_script_url, {
+                mode: 'no-cors',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post_data)
+            })
+        }
     }
 }

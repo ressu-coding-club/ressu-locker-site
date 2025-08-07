@@ -81,6 +81,7 @@ function locker_onclick(locker_num) {
  * @returns {null}
  */
 async function book_locker(locker_num, name, group, email, duration, payment_method) {
+    await data_interface.update_data();
     if (data_interface.is_locker_booked(locker_num)) {
         alert(`Locker ${locker_num} can't be booked since it is already reserved!`);
     }
