@@ -94,6 +94,10 @@ async function book_locker(locker_num, name, group, email, duration, payment_met
     }
 }
 
+window.addEventListener('focus', async () => {
+  await data_interface.update_data();
+});
+
 Navigation.NavigationObserver(async function(sId){
     await data_interface.update_data();
     await create_grid_container(Sections.getSectionViaIndex(sId));
