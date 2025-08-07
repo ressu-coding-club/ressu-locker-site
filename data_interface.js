@@ -140,6 +140,8 @@ export class DataInterface {
                 },
                 body: JSON.stringify(post_data)
             })
+
+            await this.send_confirmation_mail(locker_num, email, name, group, duration, payment_method);
         }
     }
 

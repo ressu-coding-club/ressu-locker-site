@@ -89,7 +89,7 @@ async function book_locker(locker_num, name, group, email, duration, payment_met
         var date = new Date();
         await data_interface.make_booking(locker_num, name, group, email, duration, payment_method, date);
 
-        await data_interface.send_confirmation_mail(locker_num, email, name, group, duration, payment_method);
+        /*await data_interface.send_confirmation_mail(locker_num, email, name, group, duration, payment_method);*/
         alert(`Congrulations! You have booked locker number ${locker_num}. An email with payment details has been sent to ${email}.`);
     }
 }
